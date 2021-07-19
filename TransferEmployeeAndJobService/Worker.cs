@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using TransferEmployeeAndJobService.Models;
 using TransferEmployeeAndJobService.ReqModels;
 using System.Text;
-using System.Text.Json;
 
 namespace TransferEmployeeAndJobService
 {
