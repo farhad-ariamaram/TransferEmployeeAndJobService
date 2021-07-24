@@ -35,7 +35,7 @@ namespace TransferEmployeeAndJobService
                     List<TblUser> list = null;
                     using (var client = new HttpClient())
                     {
-                        client.BaseAddress = new Uri("http://localhost:49388/api/person/");
+                        client.BaseAddress = new Uri("http://185.118.152.61/api/person/");
                         var userList = await client.GetAsync(@"get/ym/S33@||");
                         if (userList.IsSuccessStatusCode)
                         {
@@ -60,7 +60,7 @@ namespace TransferEmployeeAndJobService
                                     FldEmployeeRequestPagesSequenceId = user.PagesSequenceId
                                 };
                                 await _contextReq.TblEmployeeRequestEmployees.AddAsync(TblEmployeeRequestEmployee);
-
+                                await _contextReq.SaveChangesAsync();
 
                                 var TblEmergencyCalls = user.TblEmergencyCalls.Where(a => a.UserId == user.Id);
                                 if (TblEmergencyCalls.Any())
@@ -78,6 +78,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestEmployeeId = item.UserId
                                         };
                                         await _contextReq.TblEmployeeRequestEmergencyCalls.AddAsync(tblEmployeeRequestEmergencyCall);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -104,6 +105,7 @@ namespace TransferEmployeeAndJobService
                                             FldStudyPlace = item.FldStudyPlace
                                         };
                                         await _contextReq.TblCustomerDegrees.AddAsync(TblCustomerDegree);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -122,6 +124,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestGeneralRecordId = item.Id
                                         };
                                         await _contextReq.TblEmployeeRequestGeneralRecords.AddAsync(TblEmployeeRequestGeneralRecord);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -137,6 +140,7 @@ namespace TransferEmployeeAndJobService
                                         FldEmployeeRequestHowFindTitle = TblHowFind.HowFindTitle
                                     };
                                     await _contextReq.TblEmployeeRequestHowFinds.AddAsync(TblEmployeeRequestHowFind);
+                                    await _contextReq.SaveChangesAsync();
                                 }
 
 
@@ -154,6 +158,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestIpLogIp = item.Ip
                                         };
                                         await _contextReq.TblEmployeeRequestIpLogs.AddAsync(TblEmployeeRequestIpLog);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -178,6 +183,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestMedicalRecordStartDate = item.StartDate
                                         };
                                         await _contextReq.TblEmployeeRequestMedicalRecords.AddAsync(TblEmployeeRequestMedicalRecord);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -196,6 +202,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestPageTimeLogPageLevel = item.PageLevel
                                         };
                                         await _contextReq.TblEmployeeRequestPageTimeLogs.AddAsync(TblEmployeeRequestPageTimeLog);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -221,6 +228,7 @@ namespace TransferEmployeeAndJobService
                                         FldEmployeeRequestPrimaryInformationTutelage = TblPrimaryInformation.Tutelage
                                     };
                                     await _contextReq.TblEmployeeRequestPrimaryInformations.AddAsync(TblEmployeeRequestPrimaryInformation);
+                                    await _contextReq.SaveChangesAsync();
                                 }
 
 
@@ -242,6 +250,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestUserCompilationTitle = item.Title
                                         };
                                         await _contextReq.TblEmployeeRequestUserCompilations.AddAsync(TblEmployeeRequestUserCompilation);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -263,6 +272,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestUserCreativityTitle = item.Title
                                         };
                                         await _contextReq.TblEmployeeRequestUserCreativities.AddAsync(TblEmployeeRequestUserCreativity);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -284,6 +294,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestUserJobWhatKnowAbout = item.WhatKnowAbout
                                         };
                                         await _contextReq.TblEmployeeRequestUserJobs.AddAsync(TblEmployeeRequestUserJob);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -307,6 +318,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestUserLanguageIsNative = item.IsNative
                                         };
                                         await _contextReq.TblEmployeeRequestUserLanguages.AddAsync(TblEmployeeRequestUserLanguage);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -331,6 +343,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestUserMilitaryUnit = TblUserMilitary.Unit
                                         };
                                         await _contextReq.TblEmployeeRequestUserMilitaries.AddAsync(TblEmployeeRequestUserMilitary);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -358,6 +371,7 @@ namespace TransferEmployeeAndJobService
                                             FldEmployeeRequestUserSkillSkillType = item.SkillType
                                         };
                                         await _contextReq.TblEmployeeRequestUserSkills.AddAsync(TblEmployeeRequestUserSkill);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -397,6 +411,7 @@ namespace TransferEmployeeAndJobService
                                             WhyWantChangeJob = item.WhyWantChangeJob,
                                         };
                                         await _contextReq.TblWorkExperiences.AddAsync(TblWorkExperience);
+                                        await _contextReq.SaveChangesAsync();
                                     }
                                 }
 
@@ -418,16 +433,15 @@ namespace TransferEmployeeAndJobService
                                                     FldLeaveJob = item2.FldLeaveJob
                                                 };
                                                 await _contextReq.TblWorkExperienceLeaveJobDtls.AddAsync(TblWorkExperienceLeaveJobDtl);
+                                                await _contextReq.SaveChangesAsync();
                                             }
                                         }
                                     }
                                 }
 
-                                await _contextReq.SaveChangesAsync();
-
                                 using (var client = new HttpClient())
                                 {
-                                    client.BaseAddress = new Uri("http://localhost:49388/api/person/");
+                                    client.BaseAddress = new Uri("http://185.118.152.61/api/person/");
                                     var userList = await client.GetAsync($"{user.Id}");
                                     if (userList.IsSuccessStatusCode)
                                     {
