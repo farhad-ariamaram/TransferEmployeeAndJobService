@@ -225,7 +225,8 @@ namespace TransferEmployeeAndJobService
                                         FldEmployeeRequestPrimaryInformationPhoneNo = TblPrimaryInformation.PhoneNo,
                                         FldEmployeeRequestPrimaryInformationPostalCode = TblPrimaryInformation.PostalCode,
                                         FldEmployeeRequestPrimaryInformationTrackNo = TblPrimaryInformation.TrackNo,
-                                        FldEmployeeRequestPrimaryInformationTutelage = TblPrimaryInformation.Tutelage
+                                        FldEmployeeRequestPrimaryInformationTutelage = TblPrimaryInformation.Tutelage,
+                                        FldEmployeeRequestPrimaryInformationAddress = TblPrimaryInformation.Address
                                     };
                                     await _contextReq.TblEmployeeRequestPrimaryInformations.AddAsync(TblEmployeeRequestPrimaryInformation);
                                     await _contextReq.SaveChangesAsync();
@@ -489,7 +490,7 @@ namespace TransferEmployeeAndJobService
                             using (var client = new HttpClient())
                             {
                                 string res = "";
-                                client.BaseAddress = new Uri("http://localhost:49388/api/person");
+                                client.BaseAddress = new Uri("http://185.118.152.61/api/person/");
                                 Models.TblJob newJob = new Models.TblJob()
                                 {
                                     JobTitle = jobTitleFrom,
@@ -517,6 +518,21 @@ namespace TransferEmployeeAndJobService
                                 {
                                     item.IsPublished = true;
                                     _contextReq.TblEmployeeRequestEmployeeRequests.Update(item);
+
+                                    await _contextReq.SaveChangesAsync();
+
+                                    await _contextReq.TblEmployeeRequestJobs.AddAsync(new TblEmployeeRequestJob
+                                    {
+                                        FldEmployeeRequestJobsDescription = newJob.Description,
+                                        FldEmployeeRequestJobsEndDate = newJob.EndDate,
+                                        FldEmployeeRequestJobsIsActive = newJob.IsActive,
+                                        FldEmployeeRequestJobsId = int.Parse(res),
+                                        FldEmployeeRequestJobsJobTitle = newJob.JobTitle,
+                                        FldEmployeeRequestJobsNeedMan = newJob.NeedMan,
+                                        FldEmployeeRequestJobsNeedWoman = newJob.NeedWoman,
+                                        FldEmployeeRequestJobsStartDate = newJob.StartDate
+                                    });
+
                                     await _contextReq.SaveChangesAsync();
 
                                     _logger.LogInformation($"job submitted with id => {res} @ {DateTime.Now}");
