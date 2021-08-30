@@ -65,6 +65,7 @@ namespace TransferEmployeeAndJobService.ReqModels
         public virtual DbSet<TblJob> TblJobs { get; set; }
         public virtual DbSet<TblJobTamin> TblJobTamins { get; set; }
         public virtual DbSet<TblLeaveJob> TblLeaveJobs { get; set; }
+        public virtual DbSet<TblUserSuggestion> TblUserSuggestions { get; set; }
         public virtual DbSet<TblWorkExperience> TblWorkExperiences { get; set; }
         public virtual DbSet<TblWorkExperienceLeaveJobDtl> TblWorkExperienceLeaveJobDtls { get; set; }
         public virtual DbSet<Topic> Topics { get; set; }
@@ -75,7 +76,6 @@ namespace TransferEmployeeAndJobService.ReqModels
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("server=192.168.10.250;database=EmployeeRequestDB;User Id=EmplyUser2;Password=S33@||;");
             }
         }
@@ -1689,6 +1689,22 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .HasColumnName("Fld_LeaveJobTitle");
             });
 
+            modelBuilder.Entity<TblUserSuggestion>(entity =>
+            {
+                entity.ToTable("Tbl_UserSuggestion");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(50)
+                    .HasColumnName("User_Id");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.TblUserSuggestions)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_Tbl_UserSuggestion_Tbl_EmployeeRequest_Employee");
+            });
+
             modelBuilder.Entity<TblWorkExperience>(entity =>
             {
                 entity.HasKey(e => e.FldWorkExperienceId);
@@ -1698,6 +1714,8 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.FldWorkExperienceId)
                     .ValueGeneratedNever()
                     .HasColumnName("Fld_WorkExperienceID");
+
+                entity.Property(e => e.FieldOfWork).HasMaxLength(150);
 
                 entity.Property(e => e.FldAmountOfDailyInsurance)
                     .HasMaxLength(50)

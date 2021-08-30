@@ -35,8 +35,7 @@ namespace TransferEmployeeAndJobService
             if (flag)
             {
                 flag = false;
-                
-
+  
                 _contextReq = new EmployeeRequestDBContext();
                 var flagRaw = await _contextReq.Logs.AsNoTracking().FirstOrDefaultAsync();
                 var status = flagRaw.Flag;
@@ -422,6 +421,21 @@ namespace TransferEmployeeAndJobService
                             }
 
 
+                            var TblUserSuggestions = user.TblUserSuggestions.Where(a => a.UserId == user.Id);
+                            if (TblUserSuggestions.Any())
+                            {
+                                foreach (var item in TblUserSuggestions)
+                                {
+                                    ReqModels.TblUserSuggestion suggestion = new ReqModels.TblUserSuggestion()
+                                    {
+                                        Id = item.Id,
+                                        Suggestion = item.Suggestion,
+                                        UserId = item.UserId
+                                    };
+                                    await _contextReq.TblUserSuggestions.AddAsync(suggestion);
+                                    await _contextReq.SaveChangesAsync();
+                                }
+                            }
 
 
                             var TblUserSkills = user.TblUserSkills.Where(a => a.UserId == user.Id);
@@ -483,6 +497,7 @@ namespace TransferEmployeeAndJobService
                                         PreviousJobAchievements = item.PreviousJobAchievements,
                                         UserId = item.UserId,
                                         WhyWantChangeJob = item.WhyWantChangeJob,
+                                        FieldOfWork = item.FieldOfWork
                                     };
                                     await _contextReq.TblWorkExperiences.AddAsync(TblWorkExperience);
                                     await _contextReq.SaveChangesAsync();

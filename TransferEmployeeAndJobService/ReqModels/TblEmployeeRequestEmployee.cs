@@ -25,6 +25,7 @@ namespace TransferEmployeeAndJobService.ReqModels
             TblEmployeeRequestUserLanguages = new HashSet<TblEmployeeRequestUserLanguage>();
             TblEmployeeRequestUserMilitaries = new HashSet<TblEmployeeRequestUserMilitary>();
             TblEmployeeRequestUserSkills = new HashSet<TblEmployeeRequestUserSkill>();
+            TblUserSuggestions = new HashSet<TblUserSuggestion>();
             TblWorkExperiences = new HashSet<TblWorkExperience>();
         }
 
@@ -73,6 +74,7 @@ namespace TransferEmployeeAndJobService.ReqModels
         public virtual ICollection<TblEmployeeRequestUserLanguage> TblEmployeeRequestUserLanguages { get; set; }
         public virtual ICollection<TblEmployeeRequestUserMilitary> TblEmployeeRequestUserMilitaries { get; set; }
         public virtual ICollection<TblEmployeeRequestUserSkill> TblEmployeeRequestUserSkills { get; set; }
+        public virtual ICollection<TblUserSuggestion> TblUserSuggestions { get; set; }
         public virtual ICollection<TblWorkExperience> TblWorkExperiences { get; set; }
     }
 }
