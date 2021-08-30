@@ -17,11 +17,16 @@ namespace TransferEmployeeAndJobService.ReqModels
         {
         }
 
+        public virtual DbSet<Log> Logs { get; set; }
+        public virtual DbSet<Outline> Outlines { get; set; }
+        public virtual DbSet<OutlineVersion> OutlineVersions { get; set; }
         public virtual DbSet<PayDeanery> PayDeaneries { get; set; }
         public virtual DbSet<PayDiploma> PayDiplomas { get; set; }
         public virtual DbSet<PayEducation> PayEducations { get; set; }
         public virtual DbSet<PayJob> PayJobs { get; set; }
         public virtual DbSet<PayWorkPlace> PayWorkPlaces { get; set; }
+        public virtual DbSet<Ping> Pings { get; set; }
+        public virtual DbSet<SkillWebsiteTable> SkillWebsiteTables { get; set; }
         public virtual DbSet<TblCustomerDegree> TblCustomerDegrees { get; set; }
         public virtual DbSet<TblEmployeeRequestCompilationType> TblEmployeeRequestCompilationTypes { get; set; }
         public virtual DbSet<TblEmployeeRequestCreativityType> TblEmployeeRequestCreativityTypes { get; set; }
@@ -62,18 +67,78 @@ namespace TransferEmployeeAndJobService.ReqModels
         public virtual DbSet<TblLeaveJob> TblLeaveJobs { get; set; }
         public virtual DbSet<TblWorkExperience> TblWorkExperiences { get; set; }
         public virtual DbSet<TblWorkExperienceLeaveJobDtl> TblWorkExperienceLeaveJobDtls { get; set; }
+        public virtual DbSet<Topic> Topics { get; set; }
+        public virtual DbSet<Version> Versions { get; set; }
+        public virtual DbSet<VersionWebsiteTable> VersionWebsiteTables { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("server=192.168.10.250;database=EmployeeRequestDB;User Id=EmplyUser2;Password=S33@||;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "Persian_100_CI_AI");
+            modelBuilder.HasAnnotation("Relational:Collation", "Persian_100_CI_AS");
+
+            modelBuilder.Entity<Log>(entity =>
+            {
+                entity.ToTable("Log");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.DateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Response)
+                    .IsRequired()
+                    .HasMaxLength(150);
+            });
+
+            modelBuilder.Entity<Outline>(entity =>
+            {
+                entity.ToTable("Outline");
+
+                entity.Property(e => e.Description).HasMaxLength(1000);
+
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
+
+                entity.Property(e => e.EnglishDescription).HasMaxLength(1000);
+
+                entity.Property(e => e.EnglishTitle).HasMaxLength(50);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Title).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<OutlineVersion>(entity =>
+            {
+                entity.ToTable("Outline_Version");
+
+                entity.Property(e => e.OutlineId).HasColumnName("Outline_Id");
+
+                entity.Property(e => e.TopicId).HasColumnName("Topic_Id");
+
+                entity.Property(e => e.VersionId).HasColumnName("Version_Id");
+
+                entity.HasOne(d => d.Outline)
+                    .WithMany(p => p.OutlineVersions)
+                    .HasForeignKey(d => d.OutlineId)
+                    .HasConstraintName("FK_Outline_Version_Outline");
+
+                entity.HasOne(d => d.Topic)
+                    .WithMany(p => p.OutlineVersions)
+                    .HasForeignKey(d => d.TopicId)
+                    .HasConstraintName("FK_Outline_Version_Topic");
+
+                entity.HasOne(d => d.Version)
+                    .WithMany(p => p.OutlineVersions)
+                    .HasForeignKey(d => d.VersionId)
+                    .HasConstraintName("FK_Outline_Version_Version");
+            });
 
             modelBuilder.Entity<PayDeanery>(entity =>
             {
@@ -89,8 +154,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
-                    .HasColumnName("Deanery_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Deanery_Name");
             });
 
             modelBuilder.Entity<PayDiploma>(entity =>
@@ -110,8 +174,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false)
-                    .HasColumnName("Diploma_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Diploma_Name");
             });
 
             modelBuilder.Entity<PayEducation>(entity =>
@@ -129,8 +192,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("Education_Name")
-                    .HasDefaultValueSql("('')")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<PayJob>(entity =>
@@ -145,8 +207,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false)
-                    .HasColumnName("Jobs_Code")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Jobs_Code");
 
                 entity.Property(e => e.JobsCompanyRef).HasColumnName("Jobs_Company_Ref");
 
@@ -156,8 +217,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .IsRequired()
                     .HasMaxLength(150)
                     .IsUnicode(false)
-                    .HasColumnName("Jobs_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Jobs_Name");
 
                 entity.Property(e => e.JobsWorkPlaceRef).HasColumnName("Jobs_WorkPlace_Ref");
 
@@ -187,8 +247,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.WorkPlaceName)
                     .HasMaxLength(40)
                     .IsUnicode(false)
-                    .HasColumnName("WorkPlace_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("WorkPlace_Name");
 
                 entity.Property(e => e.WorkPlaceWorkPlaceRef).HasColumnName("WorkPlace_WorkPlace_Ref");
 
@@ -196,6 +255,32 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .WithMany(p => p.InverseWorkPlaceWorkPlaceRefNavigation)
                     .HasForeignKey(d => d.WorkPlaceWorkPlaceRef)
                     .HasConstraintName("FK_Pay_WorkPlace_Pay_WorkPlace");
+            });
+
+            modelBuilder.Entity<Ping>(entity =>
+            {
+                entity.ToTable("Ping");
+
+                entity.Property(e => e.Address)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<SkillWebsiteTable>(entity =>
+            {
+                entity.ToTable("SkillWebsiteTable");
+
+                entity.Property(e => e.EducationalWebsite).HasMaxLength(150);
+
+                entity.Property(e => e.QuestionalWebsite).HasMaxLength(150);
+
+                entity.Property(e => e.SkillWebsite).HasMaxLength(150);
+
+                entity.HasOne(d => d.Skill)
+                    .WithMany(p => p.SkillWebsiteTables)
+                    .HasForeignKey(d => d.SkillId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SkillWebsiteTable_Tbl_EmployeeRequest_Skills");
             });
 
             modelBuilder.Entity<TblCustomerDegree>(entity =>
@@ -210,8 +295,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.CustomerName)
                     .HasMaxLength(100)
-                    .HasColumnName("Customer_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Customer_Name");
 
                 entity.Property(e => e.DiplomaId).HasColumnName("Diploma_ID");
 
@@ -219,13 +303,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldDes)
                     .HasMaxLength(500)
-                    .HasColumnName("Fld_Des")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_Des");
 
                 entity.Property(e => e.FldEducationName)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_EducationName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EducationName");
 
                 entity.Property(e => e.FldEndDate)
                     .HasColumnType("datetime")
@@ -237,13 +319,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldExportNo)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_ExportNO")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_ExportNO");
 
                 entity.Property(e => e.FldPoint)
                     .HasMaxLength(5)
-                    .HasColumnName("Fld_Point")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_Point");
 
                 entity.Property(e => e.FldStartDate)
                     .HasColumnType("datetime")
@@ -251,18 +331,15 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldStudyCity)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_StudyCity")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_StudyCity");
 
                 entity.Property(e => e.FldStudyPlace)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_StudyPlace")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_StudyPlace");
 
                 entity.Property(e => e.UserId)
                     .HasMaxLength(50)
-                    .HasColumnName("User_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("User_Id");
 
                 entity.HasOne(d => d.Diploma)
                     .WithMany(p => p.TblCustomerDegrees)
@@ -291,8 +368,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestCompilationTypeCompilationType)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_CompilationType_CompilationType")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_CompilationType_CompilationType");
             });
 
             modelBuilder.Entity<TblEmployeeRequestCreativityType>(entity =>
@@ -306,8 +382,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestCreativityTypeCreativityType)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_CreativityType_CreativityType")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_CreativityType_CreativityType");
             });
 
             modelBuilder.Entity<TblEmployeeRequestEmergencyCall>(entity =>
@@ -323,38 +398,31 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmergencyCallDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_Description");
 
                 entity.Property(e => e.FldEmployeeRequestEmergencyCallFirstName)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_FirstName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_FirstName");
 
                 entity.Property(e => e.FldEmployeeRequestEmergencyCallInsuranceNo)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_InsuranceNo")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_InsuranceNo");
 
                 entity.Property(e => e.FldEmployeeRequestEmergencyCallLastName)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_LastName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_LastName");
 
                 entity.Property(e => e.FldEmployeeRequestEmergencyCallPhoneNo)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_PhoneNo")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_PhoneNo");
 
                 entity.Property(e => e.FldEmployeeRequestEmergencyCallRelative)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_Relative")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmergencyCall_Relative");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestEmergencyCalls)
@@ -371,25 +439,19 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeCurrentLevel)
                     .HasMaxLength(20)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_CurrentLevel")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_CurrentLevel");
 
-                entity.Property(e => e.FldEmployeeRequestEmployeeFinalAcceptDescription)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_FinalAcceptDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldEmployeeRequestEmployeeFinalAcceptDescription).HasColumnName("Fld_EmployeeRequest_Employee_FinalAcceptDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeFinalAcceptionDate)
                     .HasColumnType("datetime")
                     .HasColumnName("Fld_EmployeeRequest_Employee_FinalAcceptionDate");
 
-                entity.Property(e => e.FldEmployeeRequestEmployeeFinalRejectDescription)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_FinalRejectDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldEmployeeRequestEmployeeFinalRejectDescription).HasColumnName("Fld_EmployeeRequest_Employee_FinalRejectDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeInterviewEndDate)
                     .HasColumnType("datetime")
@@ -403,33 +465,33 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeePassword)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Password")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Password");
 
-                entity.Property(e => e.FldEmployeeRequestEmployeePrimaryAcceptDescription)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_PrimaryAcceptDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldEmployeeRequestEmployeePrimaryAcceptDescription).HasColumnName("Fld_EmployeeRequest_Employee_PrimaryAcceptDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeePrimaryAcceptionDate)
                     .HasColumnType("datetime")
                     .HasColumnName("Fld_EmployeeRequest_Employee_PrimaryAcceptionDate");
 
-                entity.Property(e => e.FldEmployeeRequestEmployeePrimaryRejectDescription)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_PrimaryRejectDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldEmployeeRequestEmployeePrimaryRejectDescription).HasColumnName("Fld_EmployeeRequest_Employee_PrimaryRejectDescription");
+
+                entity.Property(e => e.FldEmployeeRequestEmployeeRejectFromUserDescription).HasColumnName("Fld_EmployeeRequest_Employee_RejectFromUserDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeResultPoint).HasColumnName("Fld_EmployeeRequest_Employee_ResultPoint");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeUsername)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Username")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Username");
 
                 entity.Property(e => e.FldEmployeeRequestFinalAcceptionId).HasColumnName("Fld_EmployeeRequest_FinalAcception_Id");
 
                 entity.Property(e => e.FldEmployeeRequestPagesSequenceId).HasColumnName("Fld_EmployeeRequest_PagesSequence_Id");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryAcceptionId).HasColumnName("Fld_EmployeeRequest_PrimaryAcception_Id");
+
+                entity.Property(e => e.IsDelete).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TransferedDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.FldEmployeeRequestFinalAcception)
                     .WithMany(p => p.TblEmployeeRequestEmployees)
@@ -471,13 +533,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeEditLogSection)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_EmployeeEditLog_Section")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmployeeEditLog_Section");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestUserId).HasColumnName("Fld_EmployeeRequest_User_Id");
 
@@ -516,8 +576,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeRequestInternalDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_EmployeeRequest_InternalDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmployeeRequest_InternalDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeRequestIsAccept).HasColumnName("Fld_EmployeeRequest_EmployeeRequest_IsAccept");
 
@@ -525,8 +584,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeRequestJobDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_EmployeeRequest_JobDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmployeeRequest_JobDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeRequestNeedMan).HasColumnName("Fld_EmployeeRequest_EmployeeRequest_NeedMan");
 
@@ -534,8 +592,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeRequestPublishDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_EmployeeRequest_PublishDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_EmployeeRequest_PublishDescription");
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeRequestStartDate)
                     .HasColumnType("datetime")
@@ -606,8 +663,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestFinalAcceptionStatus)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_FinalAcception_Status")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_FinalAcception_Status");
             });
 
             modelBuilder.Entity<TblEmployeeRequestGeneralRecord>(entity =>
@@ -623,23 +679,19 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestGeneralRecordCriminalDes)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_GeneralRecord_CriminalDes")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_GeneralRecord_CriminalDes");
 
                 entity.Property(e => e.FldEmployeeRequestGeneralRecordCriminalTiltle)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_GeneralRecord_CriminalTiltle")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_GeneralRecord_CriminalTiltle");
 
                 entity.Property(e => e.FldEmployeeRequestGeneralRecordDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_GeneralRecord_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_GeneralRecord_Description");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestGeneralRecords)
@@ -655,14 +707,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestHelpId).HasColumnName("Fld_EmployeeRequest_Help_Id");
 
-                entity.Property(e => e.FldEmployeeRequestHelpDescription)
-                    .HasColumnName("Fld_EmployeeRequest_Help_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldEmployeeRequestHelpDescription).HasColumnName("Fld_EmployeeRequest_Help_Description");
 
                 entity.Property(e => e.FldEmployeeRequestHelpName)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_EmployeeRequest_Help_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Help_Name");
             });
 
             modelBuilder.Entity<TblEmployeeRequestHowFind>(entity =>
@@ -678,18 +727,15 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestHowFindAdditionalDes)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_HowFind_AdditionalDes")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_HowFind_AdditionalDes");
 
                 entity.Property(e => e.FldEmployeeRequestHowFindTitle)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_HowFind_Title")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_HowFind_Title");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestHowFinds)
@@ -709,8 +755,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestInterviewSessionDate)
                     .HasColumnType("datetime")
@@ -759,8 +804,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestIpLogDateTime)
                     .HasColumnType("datetime")
@@ -768,8 +812,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestIpLogIp)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_EmployeeRequest_IpLog_Ip")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_IpLog_Ip");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestIpLogs)
@@ -784,12 +827,13 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.ToTable("Tbl_EmployeeRequest_Jobs");
 
-                entity.Property(e => e.FldEmployeeRequestJobsId).HasColumnName("Fld_EmployeeRequest_Jobs_Id");
+                entity.Property(e => e.FldEmployeeRequestJobsId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Fld_EmployeeRequest_Jobs_Id");
 
                 entity.Property(e => e.FldEmployeeRequestJobsDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_Jobs_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Jobs_Description");
 
                 entity.Property(e => e.FldEmployeeRequestJobsEndDate)
                     .HasColumnType("datetime")
@@ -799,8 +843,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestJobsJobTitle)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_EmployeeRequest_Jobs_JobTitle")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Jobs_JobTitle");
 
                 entity.Property(e => e.FldEmployeeRequestJobsNeedMan).HasColumnName("Fld_EmployeeRequest_Jobs_NeedMan");
 
@@ -819,8 +862,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.TblEmployeeRequestJobTitleFromTitle)
                     .HasMaxLength(50)
-                    .HasColumnName("Tbl_EmployeeRequest_JobTitleFrom_Title")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Tbl_EmployeeRequest_JobTitleFrom_Title");
             });
 
             modelBuilder.Entity<TblEmployeeRequestLanguageType>(entity =>
@@ -834,8 +876,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestLanguageTypeLanguageType)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_LanguageType_LanguageType")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_LanguageType_LanguageType");
             });
 
             modelBuilder.Entity<TblEmployeeRequestLink>(entity =>
@@ -847,8 +888,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestLinkId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Link_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Link_Id");
 
                 entity.Property(e => e.FldEmployeeRequestLinkExpireDate)
                     .HasColumnType("datetime")
@@ -856,8 +896,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestLinkPhone)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Link_Phone")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Link_Phone");
             });
 
             modelBuilder.Entity<TblEmployeeRequestMedicalRecord>(entity =>
@@ -873,24 +912,20 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestMedicalRecordComplicationsDes)
                     .HasMaxLength(1000)
                     .HasColumnName("Fld_EmployeeRequest_MedicalRecord_ComplicationsDes")
-                    .IsFixedLength(true)
-                    .UseCollation("Persian_100_CI_AS");
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.FldEmployeeRequestMedicalRecordDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_MedicalRecord_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_MedicalRecord_Description");
 
                 entity.Property(e => e.FldEmployeeRequestMedicalRecordDisease)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_MedicalRecord_Disease")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_MedicalRecord_Disease");
 
                 entity.Property(e => e.FldEmployeeRequestMedicalRecordEndDate)
                     .HasColumnType("datetime")
@@ -904,8 +939,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestMedicalRecordProblemDes)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_MedicalRecord_ProblemDes")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_MedicalRecord_ProblemDes");
 
                 entity.Property(e => e.FldEmployeeRequestMedicalRecordStartDate)
                     .HasColumnType("datetime")
@@ -928,8 +962,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestMilitaryMilitaryStatus)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Military_MilitaryStatus")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Military_MilitaryStatus");
             });
 
             modelBuilder.Entity<TblEmployeeRequestMilitaryOrganization>(entity =>
@@ -943,8 +976,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestMilitaryOrganizationOrganizationName)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_MilitaryOrganization_OrganizationName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_MilitaryOrganization_OrganizationName");
             });
 
             modelBuilder.Entity<TblEmployeeRequestPageTimeLog>(entity =>
@@ -960,8 +992,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestPageTimeLogEndTime)
                     .HasColumnType("datetime")
@@ -969,8 +1000,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestPageTimeLogPageLevel)
                     .HasMaxLength(10)
-                    .HasColumnName("Fld_EmployeeRequest_PageTimeLog_PageLevel")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PageTimeLog_PageLevel");
 
                 entity.Property(e => e.FldEmployeeRequestPageTimeLogStartTime)
                     .HasColumnType("datetime")
@@ -1041,8 +1071,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryAcceptionStatus)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryAcception_Status")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryAcception_Status");
             });
 
             modelBuilder.Entity<TblEmployeeRequestPrimaryInformation>(entity =>
@@ -1058,13 +1087,15 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationAddress)
                     .HasMaxLength(2000)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Address")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Address");
+
+                entity.Property(e => e.FldEmployeeRequestPrimaryInformationAddress2)
+                    .HasMaxLength(2000)
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Address2");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationBirthDate)
                     .HasColumnType("datetime")
@@ -1074,43 +1105,35 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationFirstName)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_FirstName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_FirstName");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationGender)
                     .HasMaxLength(20)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Gender")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Gender");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationLastName)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_LastName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_LastName");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationMarital)
                     .HasMaxLength(20)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Marital")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Marital");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationNationalCode)
                     .HasMaxLength(20)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_NationalCode")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_NationalCode");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationPhoneNo)
                     .HasMaxLength(20)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_PhoneNo")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_PhoneNo");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationPostalCode)
                     .HasMaxLength(20)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_PostalCode")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_PostalCode");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationTrackNo)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_TrackNo")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_PrimaryInformation_TrackNo");
 
                 entity.Property(e => e.FldEmployeeRequestPrimaryInformationTutelage).HasColumnName("Fld_EmployeeRequest_PrimaryInformation_Tutelage");
 
@@ -1129,10 +1152,34 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestSkillsId).HasColumnName("Fld_EmployeeRequest_Skills_Id");
 
+                entity.Property(e => e.FldEmployeeRequestSkillsSkillActive)
+                    .IsRequired()
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillActive")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FldEmployeeRequestSkillsSkillDescription)
+                    .HasMaxLength(2000)
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillDescription");
+
+                entity.Property(e => e.FldEmployeeRequestSkillsSkillEndDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillEndDate");
+
+                entity.Property(e => e.FldEmployeeRequestSkillsSkillEnglishDescription)
+                    .HasMaxLength(2000)
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillEnglishDescription");
+
+                entity.Property(e => e.FldEmployeeRequestSkillsSkillEnglishTitle)
+                    .HasMaxLength(100)
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillEnglishTitle");
+
+                entity.Property(e => e.FldEmployeeRequestSkillsSkillStartDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillStartDate");
+
                 entity.Property(e => e.FldEmployeeRequestSkillsSkillTitle)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillTitle")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Skills_SkillTitle");
             });
 
             modelBuilder.Entity<TblEmployeeRequestSmsReceived>(entity =>
@@ -1152,13 +1199,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestSmsReceivedMessage)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_SmsReceived_Message")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_SmsReceived_Message");
 
                 entity.Property(e => e.FldEmployeeRequestSmsReceivedPhone)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_SmsReceived_Phone")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_SmsReceived_Phone");
             });
 
             modelBuilder.Entity<TblEmployeeRequestSmsSent>(entity =>
@@ -1176,13 +1221,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestSmsSentMessage)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_SmsSent_Message")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_SmsSent_Message");
 
                 entity.Property(e => e.FldEmployeeRequestSmsSentPhone)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_SmsSent_Phone")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_SmsSent_Phone");
             });
 
             modelBuilder.Entity<TblEmployeeRequestUser>(entity =>
@@ -1198,18 +1241,15 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserName)
                     .HasMaxLength(3000)
-                    .HasColumnName("Fld_EmployeeRequest_User_Name")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_User_Name");
 
                 entity.Property(e => e.FldEmployeeRequestUserPassword)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_User_Password")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_User_Password");
 
                 entity.Property(e => e.FldEmployeeRequestUserUsername)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_User_Username")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_User_Username");
             });
 
             modelBuilder.Entity<TblEmployeeRequestUserCompilation>(entity =>
@@ -1227,13 +1267,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestUserCompilationAuthor)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Author")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Author");
 
                 entity.Property(e => e.FldEmployeeRequestUserCompilationDate)
                     .HasColumnType("datetime")
@@ -1241,18 +1279,15 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserCompilationDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Description");
 
                 entity.Property(e => e.FldEmployeeRequestUserCompilationExplanation)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Explanation")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Explanation");
 
                 entity.Property(e => e.FldEmployeeRequestUserCompilationTitle)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Title")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCompilation_Title");
 
                 entity.HasOne(d => d.FldEmployeeRequestCompilationType)
                     .WithMany(p => p.TblEmployeeRequestUserCompilations)
@@ -1280,8 +1315,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestUserCreativityDate)
                     .HasColumnType("datetime")
@@ -1289,18 +1323,15 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserCreativityDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_UserCreativity_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCreativity_Description");
 
                 entity.Property(e => e.FldEmployeeRequestUserCreativityExplanation)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_UserCreativity_Explanation")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCreativity_Explanation");
 
                 entity.Property(e => e.FldEmployeeRequestUserCreativityTitle)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserCreativity_Title")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserCreativity_Title");
 
                 entity.HasOne(d => d.FldEmployeeRequestCreativityType)
                     .WithMany(p => p.TblEmployeeRequestUserCreativities)
@@ -1326,30 +1357,25 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestJobsId).HasColumnName("Fld_EmployeeRequest_Jobs_Id");
 
                 entity.Property(e => e.FldEmployeeRequestUserJobDescription)
                     .HasMaxLength(500)
-                    .HasColumnName("Fld_EmployeeRequest_UserJob_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserJob_Description");
 
                 entity.Property(e => e.FldEmployeeRequestUserJobRequestMoney)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserJob_RequestMoney")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserJob_RequestMoney");
 
                 entity.Property(e => e.FldEmployeeRequestUserJobTitle)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserJob_Title")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserJob_Title");
 
                 entity.Property(e => e.FldEmployeeRequestUserJobWhatKnowAbout)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_UserJob_WhatKnowAbout")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserJob_WhatKnowAbout");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestUserJobs)
@@ -1375,13 +1401,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestUserLanguageDescription)
                     .HasMaxLength(1000)
-                    .HasColumnName("Fld_EmployeeRequest_UserLanguage_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserLanguage_Description");
 
                 entity.Property(e => e.FldEmployeeRequestUserLanguageIsNative).HasColumnName("Fld_EmployeeRequest_UserLanguage_IsNative");
 
@@ -1419,8 +1443,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestMilitaryId).HasColumnName("Fld_EmployeeRequest_Military_Id");
 
@@ -1428,13 +1451,11 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserMilitaryCity)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_City")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_City");
 
                 entity.Property(e => e.FldEmployeeRequestUserMilitaryDescription)
                     .HasMaxLength(500)
-                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_Description");
 
                 entity.Property(e => e.FldEmployeeRequestUserMilitaryEndDate)
                     .HasColumnType("datetime")
@@ -1442,8 +1463,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserMilitaryExemptDescription)
                     .HasMaxLength(500)
-                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_ExemptDescription")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_ExemptDescription");
 
                 entity.Property(e => e.FldEmployeeRequestUserMilitaryStartDate)
                     .HasColumnType("datetime")
@@ -1451,8 +1471,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserMilitaryUnit)
                     .HasMaxLength(200)
-                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_Unit")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserMilitary_Unit");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestUserMilitaries)
@@ -1495,6 +1514,10 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .HasColumnName("Fld_EmployeeRequest_UserSetting_IsShowRed")
                     .HasDefaultValueSql("((1))");
 
+                entity.Property(e => e.FldEmployeeRequestUserSettingPageSize)
+                    .HasColumnName("Fld_EmployeeRequest_UserSetting_PageSize")
+                    .HasDefaultValueSql("((5))");
+
                 entity.HasOne(d => d.FldEmployeeRequestUser)
                     .WithMany(p => p.TblEmployeeRequestUserSettings)
                     .HasForeignKey(d => d.FldEmployeeRequestUserId)
@@ -1514,8 +1537,7 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestEmployeeId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_Employee_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_Employee_Id");
 
                 entity.Property(e => e.FldEmployeeRequestSkillsId).HasColumnName("Fld_EmployeeRequest_Skills_Id");
 
@@ -1525,37 +1547,31 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillDescription)
                     .HasMaxLength(500)
-                    .HasColumnName("Fld_EmployeeRequest_UserSkill_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserSkill_Description");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillIsSelfTaught).HasColumnName("Fld_EmployeeRequest_UserSkill_IsSelfTaught");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillLicenseNo)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserSkill_LicenseNo")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserSkill_LicenseNo");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillLicenseReference)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserSkill_LicenseReference")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserSkill_LicenseReference");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillLocation)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserSkill_Location")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserSkill_Location");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillSkillLevel).HasColumnName("Fld_EmployeeRequest_UserSkill_SkillLevel");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillSkillTitle)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_EmployeeRequest_UserSkill_SkillTitle")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserSkill_SkillTitle");
 
                 entity.Property(e => e.FldEmployeeRequestUserSkillSkillType)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EmployeeRequest_UserSkill_SkillType")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EmployeeRequest_UserSkill_SkillType");
 
                 entity.HasOne(d => d.FldEmployeeRequestEmployee)
                     .WithMany(p => p.TblEmployeeRequestUserSkills)
@@ -1578,29 +1594,23 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .ValueGeneratedNever()
                     .HasColumnName("Fld_JobID");
 
-                entity.Property(e => e.FldBehinyabAddress)
-                    .HasColumnName("Fld_BehinyabAddress")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldBehinyabAddress).HasColumnName("Fld_BehinyabAddress");
 
                 entity.Property(e => e.FldBehinyabId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_BehinyabID")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_BehinyabID");
 
                 entity.Property(e => e.FldDes)
                     .HasColumnType("ntext")
-                    .HasColumnName("Fld_Des")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_Des");
 
                 entity.Property(e => e.FldDesDeActive)
                     .HasColumnType("ntext")
-                    .HasColumnName("Fld_DesDeActive")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_DesDeActive");
 
                 entity.Property(e => e.FldDesEn)
                     .HasColumnType("ntext")
-                    .HasColumnName("Fld_DesEN")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_DesEN");
 
                 entity.Property(e => e.FldEndDate)
                     .HasColumnType("datetime")
@@ -1611,27 +1621,21 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.FldJobName)
                     .IsRequired()
                     .HasMaxLength(200)
-                    .HasColumnName("Fld_JobName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_JobName");
 
                 entity.Property(e => e.FldJobNameEn)
                     .HasMaxLength(200)
-                    .HasColumnName("Fld_JobNameEN")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_JobNameEN");
 
                 entity.Property(e => e.FldMiniCode)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_miniCode")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_miniCode");
 
-                entity.Property(e => e.FldOnetAddress)
-                    .HasColumnName("Fld_ONetAddress")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldOnetAddress).HasColumnName("Fld_ONetAddress");
 
                 entity.Property(e => e.FldOnetId)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_ONetID")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_ONetID");
 
                 entity.Property(e => e.FldStartDate)
                     .HasColumnType("datetime")
@@ -1655,21 +1659,18 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.FldTaminJobCode)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_TaminJobCode")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_TaminJobCode");
 
                 entity.Property(e => e.FldTaminJobName)
                     .IsRequired()
                     .HasMaxLength(200)
-                    .HasColumnName("Fld_TaminJobName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_TaminJobName");
 
                 entity.Property(e => e.FldTaminJobStatus).HasColumnName("Fld_TaminJobStatus");
 
                 entity.Property(e => e.FldTaminJobStatusDate)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_TaminJobStatusDate")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_TaminJobStatusDate");
             });
 
             modelBuilder.Entity<TblLeaveJob>(entity =>
@@ -1685,8 +1686,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.FldLeaveJobTitle)
                     .IsRequired()
                     .HasMaxLength(200)
-                    .HasColumnName("Fld_LeaveJobTitle")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_LeaveJobTitle");
             });
 
             modelBuilder.Entity<TblWorkExperience>(entity =>
@@ -1702,37 +1702,29 @@ namespace TransferEmployeeAndJobService.ReqModels
                 entity.Property(e => e.FldAmountOfDailyInsurance)
                     .HasMaxLength(50)
                     .HasColumnName("Fld_AmountOfDailyInsurance")
-                    .HasDefaultValueSql("((0))")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.FldCompanyName)
                     .HasMaxLength(200)
-                    .HasColumnName("Fld_CompanyName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_CompanyName");
 
                 entity.Property(e => e.FldContactInnerNumberOfCompany)
                     .HasMaxLength(10)
-                    .HasColumnName("Fld_ContactInnerNumberOfCompany")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_ContactInnerNumberOfCompany");
 
                 entity.Property(e => e.FldContactNumberOfCompany)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_ContactNumberOfCompany")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_ContactNumberOfCompany");
 
                 entity.Property(e => e.FldCustomerName)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_CustomerName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_CustomerName");
 
-                entity.Property(e => e.FldDescription)
-                    .HasColumnName("Fld_Description")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldDescription).HasColumnName("Fld_Description");
 
                 entity.Property(e => e.FldEarlySalary)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_EarlySalary")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_EarlySalary");
 
                 entity.Property(e => e.FldEndDate)
                     .HasColumnType("datetime")
@@ -1740,24 +1732,19 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldJobTitle)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_JobTitle")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_JobTitle");
 
                 entity.Property(e => e.FldLateSalary)
                     .HasMaxLength(50)
-                    .HasColumnName("Fld_LateSalary")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_LateSalary");
 
                 entity.Property(e => e.FldLeaveJobId).HasColumnName("Fld_LeaveJobID");
 
-                entity.Property(e => e.FldReasonsToLeaveJob)
-                    .HasColumnName("Fld_ReasonsToLeaveJob")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldReasonsToLeaveJob).HasColumnName("Fld_ReasonsToLeaveJob");
 
                 entity.Property(e => e.FldRelatedPeople)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_RelatedPeople")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_RelatedPeople");
 
                 entity.Property(e => e.FldStartDate)
                     .HasColumnType("datetime")
@@ -1767,35 +1754,25 @@ namespace TransferEmployeeAndJobService.ReqModels
 
                 entity.Property(e => e.FldUnitName)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_UnitName")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_UnitName");
 
                 entity.Property(e => e.FldWorkDay)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_WorkDay")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_WorkDay");
 
                 entity.Property(e => e.FldWorkTime)
                     .HasMaxLength(100)
-                    .HasColumnName("Fld_WorkTime")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("Fld_WorkTime");
 
-                entity.Property(e => e.InsuranceNo)
-                    .HasMaxLength(50)
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.InsuranceNo).HasMaxLength(50);
 
-                entity.Property(e => e.PreviousJobAchievements)
-                    .HasMaxLength(1000)
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.PreviousJobAchievements).HasMaxLength(1000);
 
                 entity.Property(e => e.UserId)
                     .HasMaxLength(50)
-                    .HasColumnName("User_Id")
-                    .UseCollation("Persian_100_CI_AS");
+                    .HasColumnName("User_Id");
 
-                entity.Property(e => e.WhyWantChangeJob)
-                    .HasMaxLength(1000)
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.WhyWantChangeJob).HasMaxLength(1000);
 
                 entity.HasOne(d => d.FldLeaveJob)
                     .WithMany(p => p.TblWorkExperiences)
@@ -1823,9 +1800,7 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .ValueGeneratedNever()
                     .HasColumnName("Fld_WorkExperienceLeaveJobDtlID");
 
-                entity.Property(e => e.FldLeaveJob)
-                    .HasColumnName("Fld_LeaveJob")
-                    .UseCollation("Persian_100_CI_AS");
+                entity.Property(e => e.FldLeaveJob).HasColumnName("Fld_LeaveJob");
 
                 entity.Property(e => e.FldLeaveJobId).HasColumnName("Fld_LeaveJobID");
 
@@ -1843,6 +1818,64 @@ namespace TransferEmployeeAndJobService.ReqModels
                     .HasForeignKey(d => d.FldWorkExperienceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Tbl_WorkExperienceLeaveJobDtl_Tbl_WorkExperience");
+            });
+
+            modelBuilder.Entity<Topic>(entity =>
+            {
+                entity.ToTable("Topic");
+
+                entity.Property(e => e.Description).HasMaxLength(1000);
+
+                entity.Property(e => e.EnglishDescription).HasMaxLength(1000);
+
+                entity.Property(e => e.EnglishTitle).HasMaxLength(50);
+
+                entity.Property(e => e.Title).HasMaxLength(50);
+
+                entity.Property(e => e.VersionId).HasColumnName("Version_Id");
+
+                entity.HasOne(d => d.Version)
+                    .WithMany(p => p.Topics)
+                    .HasForeignKey(d => d.VersionId)
+                    .HasConstraintName("FK_Topic_Version");
+            });
+
+            modelBuilder.Entity<Version>(entity =>
+            {
+                entity.ToTable("Version");
+
+                entity.Property(e => e.Description).HasMaxLength(1000);
+
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
+
+                entity.Property(e => e.EnglishDescription).HasMaxLength(1000);
+
+                entity.Property(e => e.PersianVersion).HasMaxLength(50);
+
+                entity.Property(e => e.SkillId).HasColumnName("Skill_Id");
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Version1)
+                    .HasMaxLength(50)
+                    .HasColumnName("Version");
+            });
+
+            modelBuilder.Entity<VersionWebsiteTable>(entity =>
+            {
+                entity.ToTable("VersionWebsiteTable");
+
+                entity.Property(e => e.EducationalWebsite).HasMaxLength(150);
+
+                entity.Property(e => e.QuestionalWebsite).HasMaxLength(150);
+
+                entity.Property(e => e.VersionWebsite).HasMaxLength(150);
+
+                entity.HasOne(d => d.Version)
+                    .WithMany(p => p.VersionWebsiteTables)
+                    .HasForeignKey(d => d.VersionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VersionWebsiteTable_Version");
             });
 
             OnModelCreatingPartial(modelBuilder);

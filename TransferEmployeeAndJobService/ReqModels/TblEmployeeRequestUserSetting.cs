@@ -12,6 +12,7 @@ namespace TransferEmployeeAndJobService.ReqModels
         public bool? FldEmployeeRequestUserSettingIsShowGreen { get; set; }
         public bool? FldEmployeeRequestUserSettingIsShowRed { get; set; }
         public bool? FldEmployeeRequestUserSettingIsCollaps { get; set; }
+        public int FldEmployeeRequestUserSettingPageSize { get; set; }
 
         public virtual TblEmployeeRequestUser FldEmployeeRequestUser { get; set; }
     }
