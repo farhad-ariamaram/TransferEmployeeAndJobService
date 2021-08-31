@@ -77,6 +77,12 @@ namespace TransferEmployeeAndJobService
                         flag = false;
                         _contextReq = new EmployeeRequestDBContext();
                         await DoUpdateAsync();
+
+                        var flagRaw = await _contextReq.Logs.AsNoTracking().FirstOrDefaultAsync();
+                        flagRaw.DateTime = DateTime.Now;
+                        _contextReq.Update(flagRaw);
+                        await _contextReq.SaveChangesAsync();
+
                         await _contextReq.DisposeAsync();
                         flag = true;
                     }
